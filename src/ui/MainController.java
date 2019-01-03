@@ -1,6 +1,5 @@
 package ui;
 
-
 import app.SkyscaperApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -52,17 +51,28 @@ public class MainController {
         }
 
         currentProgramState = ProgramState.PERFORMING;
-
-        if (SkyscaperApp.INSTANCE.perform(new String[]{sourcePath, destinationPath})) {
-            destinationPath = null;
-            sourcePath = null;
-
-            listLogger.successLog();
-        }
-
-        currentProgramState = ProgramState.IDLE;
-
         updateStates();
+
+        SkyscaperApp.INSTANCE.performAsync(new String[]{sourcePath, destinationPath}, this::postCompletionOnMain);
+    }
+
+    /**
+     * Updates the main view with the success or failure of the operation.
+     *
+     * @param success true if the operation was successful, false otherwise
+     */
+    private void postCompletionOnMain(boolean success) {
+        Platform.runLater(() -> {
+            if (success) {
+                destinationPath = null;
+                sourcePath = null;
+
+                listLogger.successLog();
+            }
+
+            currentProgramState = ProgramState.IDLE;
+            updateStates();
+        });
     }
 
     /**
@@ -126,18 +136,6 @@ public class MainController {
     }
 
     /**
-     * Updates the views to the current downloadAndOpen progress.
-     * Can be run from another thread.
-     *
-     * @param message the message to inform about the progress
-     */
-    private void postUpdateViewsForDownloadProgress(String message) {
-        Platform.runLater(() -> {
-
-        });
-    }
-
-    /**
      * Updates all visible ui states.
      */
     private void updateStates() {
@@ -159,7 +157,7 @@ public class MainController {
                 statusText.setText("Performing...");
                 stateIndicator.setVisible(true);
 
-                moveButton.setDisable(false);
+                moveButton.setDisable(true);
 
                 break;
         }

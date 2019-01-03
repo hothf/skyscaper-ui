@@ -1,5 +1,6 @@
 package ui.logging;
 
+import javafx.application.Platform;
 import javafx.scene.control.ListCell;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -61,9 +62,7 @@ public class ListLogger implements Logger {
 
         String message = timeStamp + " " + level + " " + logMessage;
 
-        listView.getItems().add(new Log(message, paint));
-
-        listView.scrollTo(listView.getItems().size() - 1);
+        postUiUpdate(new Log(message, paint));
     }
 
     /**
@@ -73,9 +72,21 @@ public class ListLogger implements Logger {
 
         String timeStamp = formatTime(Calendar.getInstance().getTime());
 
-        listView.getItems().add(new Log(timeStamp + " S: " + "Moving successful !", Color.GREEN));
+        postUiUpdate(new Log(timeStamp + " S: " + "Moving successful !", Color.GREEN));
+    }
 
-        listView.scrollTo(listView.getItems().size() - 1);
+
+    /**
+     * Posts a ui update with the given log entry.
+     *
+     * @param log the log entry
+     */
+    private void postUiUpdate(Log log) {
+        Platform.runLater(() -> {
+            listView.getItems().add(log);
+
+            listView.scrollTo(listView.getItems().size() - 1);
+        });
     }
 
     private String formatTime(Date date) {
