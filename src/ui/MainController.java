@@ -3,6 +3,7 @@ package ui;
 import app.SkyscaperApp;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -10,24 +11,26 @@ import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import ui.logging.ListLogger;
 import ui.util.ProgramState;
+
+import java.io.File;
 
 public class MainController {
 
     public Label statusText;
     public Button moveButton;
     public Label dropTextSource;
-    public ListView<ListLogger.Log> logList;
     public Label dropTextDestination;
-
     public ProgressIndicator stateIndicator;
+    public ListView<ListLogger.Log> logList;
 
     private String sourcePath;
     private String destinationPath;
-    private ProgramState currentProgramState = ProgramState.IDLE;
-
     private ListLogger listLogger;
+    private ProgramState currentProgramState = ProgramState.IDLE;
 
     @FXML
     public void initialize() {
@@ -56,6 +59,7 @@ public class MainController {
         SkyscaperApp.INSTANCE.performAsync(new String[]{sourcePath, destinationPath}, this::postCompletionOnMain);
     }
 
+
     /**
      * Updates the main view with the success or failure of the operation.
      *
@@ -64,7 +68,6 @@ public class MainController {
     private void postCompletionOnMain(boolean success) {
         Platform.runLater(() -> {
             if (success) {
-                destinationPath = null;
                 sourcePath = null;
 
                 listLogger.successLog();
@@ -73,6 +76,40 @@ public class MainController {
             currentProgramState = ProgramState.IDLE;
             updateStates();
         });
+    }
+
+    /**
+     * Opens a file chooser for choosing the source file.
+     *
+     * @param event the click event opening the chooser
+     */
+    public void openSourceFileChooser(Event event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select a resource file");
+        File selectedFile = fileChooser.showOpenDialog(null);
+
+        if (selectedFile != null) {
+            sourcePath = selectedFile.getPath();
+
+            updateStates();
+        }
+    }
+
+    /**
+     * Opens a directory chooser for opening the destination dir.
+     *
+     * @param event the click event opening the chooser
+     */
+    public void openDestinationDirChooser(Event event) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select destination directory");
+        File selectedDir = directoryChooser.showDialog(null);
+
+        if (selectedDir != null) {
+            destinationPath = selectedDir.getPath();
+
+            updateStates();
+        }
     }
 
     /**
@@ -90,6 +127,34 @@ public class MainController {
     }
 
     /**
+     * Called on a drag enter event.
+     */
+    public void onSourceDragEnter() {
+        changeDragDropStyleFor(dropTextSource, true, sourcePath != null);
+    }
+
+    /**
+     * Called on a drag exit event.
+     */
+    public void onSourceDragExit() {
+        changeDragDropStyleFor(dropTextSource, false, sourcePath != null);
+    }
+
+    /**
+     * Called on a drag enter event.
+     */
+    public void onDestinationDragEnter() {
+        changeDragDropStyleFor(dropTextDestination, true, destinationPath != null);
+    }
+
+    /**
+     * Called on a drag exit event.
+     */
+    public void onDestinationDragExit() {
+        changeDragDropStyleFor(dropTextDestination, false, destinationPath != null);
+    }
+
+    /**
      * Called on the drop event of a source file.
      *
      * @param dragEvent the drag event
@@ -99,6 +164,31 @@ public class MainController {
         sourcePath = handleDragDrop(dragEvent);
 
         updateStates();
+    }
+
+    /**
+     * Changes the drag and drop style for the given label based on the given attribute flags.
+     * There can only be one active flag. If both flags are non-null, the enter flag has a higher priority.
+     *
+     * @param label    the label to change to style of
+     * @param enter    the enter flag
+     * @param accepted the accepted flag
+     */
+    private void changeDragDropStyleFor(Label label, Boolean enter, Boolean accepted) {
+
+        label.getStyleClass().clear();
+
+        String style = "dropText";
+
+        if (enter != null && enter) {
+            style = "dropTextSelected";
+        }
+
+        if (accepted != null && accepted) {
+            style = "dropTextAccepted";
+        }
+
+        label.getStyleClass().add(style);
     }
 
     /**
@@ -150,6 +240,9 @@ public class MainController {
 
                 dropTextSource.setText(sourcePath == null ? "Source" : sourcePath);
                 dropTextDestination.setText(destinationPath == null ? "Destination" : destinationPath);
+
+                changeDragDropStyleFor(dropTextSource, null, sourcePath != null);
+                changeDragDropStyleFor(dropTextDestination, null, destinationPath != null);
 
                 break;
             case PERFORMING:

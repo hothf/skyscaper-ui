@@ -7,6 +7,23 @@
      -fx-border-insets: 0,0,0,0;
      -fx-border-width: 4px;
      -fx-border-style: segments(15, 15, 15, 15)  line-cap round ;
+     -fx-text-fill: #000000;
+}
+
+.dropTextSelected {
+     -fx-border-color: #167389;
+     -fx-border-insets: 0,0,0,0;
+     -fx-border-width: 4px;
+     -fx-border-style: segments(15, 15, 15, 15)  line-cap round ;
+     -fx-text-fill: #167389;
+}
+
+.dropTextAccepted {
+     -fx-border-color: #168932;
+     -fx-border-insets: 0,0,0,0;
+     -fx-border-width: 4px;
+     -fx-border-style: segments(15, 15, 15, 15)  line-cap round ;
+     -fx-text-fill: #168932;
 }
 
 #bottomContainer {
