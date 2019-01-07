@@ -13,10 +13,11 @@ The application is meant for building with IntelliJ. Simply hit *build artifact*
 
 ## Usage
 
-So far the tool only offers 2 inputs:
+So far the tool only offers 3 inputs:
 
 - A) Drag&Drop of source file and destination dir or click on the labels to open file and directory choosers
 - B) The *move resources* button which becomes available, if two paths were dropped in A)
+- C) Optionally, the file name (plus extension) can be changed via checking and entering a file name to overwrite
 
 All program logs are written to the lower part of the UI.
 

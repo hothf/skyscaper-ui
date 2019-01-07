@@ -23,7 +23,9 @@ public class MainController {
     public Label statusText;
     public Button moveButton;
     public Label dropTextSource;
+    public CheckBox fileNameCheck;
     public Label dropTextDestination;
+    public TextField fileNameTextField;
     public ProgressIndicator stateIndicator;
     public ListView<ListLogger.Log> logList;
 
@@ -56,7 +58,25 @@ public class MainController {
         currentProgramState = ProgramState.PERFORMING;
         updateStates();
 
-        SkyscaperApp.INSTANCE.performAsync(new String[]{sourcePath, destinationPath}, this::postCompletionOnMain);
+        String fileName = null;
+
+        if (fileNameCheck.isSelected()
+                && fileNameTextField.getText() != null
+                && !fileNameTextField.getText().isEmpty()) {
+            fileName = fileNameTextField.getText();
+        }
+
+        SkyscaperApp.INSTANCE.performAsync(
+                new String[]{sourcePath, destinationPath},
+                fileName,
+                this::postCompletionOnMain);
+    }
+
+    /**
+     * Called on a file overwrite check change.
+     */
+    public void onFileOverwriteChecked() {
+        fileNameTextField.setDisable(!fileNameCheck.isSelected());
     }
 
 
