@@ -19,3 +19,7 @@ So far the tool only offers 2 inputs:
 - B) The *move resources* button which becomes available, if two paths were dropped in A)
 
 All program logs are written to the lower part of the UI.
+
+Example:
+
+![Sample](images/sample.gif)
